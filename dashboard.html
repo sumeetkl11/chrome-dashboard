@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #0A0B10;
+            --glass-bg: rgba(18, 20, 32, 0.65);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-border-hover: rgba(255, 255, 255, 0.20);
+            --accent-violet: #7C3AED;
+            --accent-cyan: #06B6D4;
+            --accent-magenta: #EC4899;
+            --text-primary: #F8FAFC;
+            --text-secondary: #94A3B8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(124, 58, 237, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 85% 30%, rgba(6, 182, 212, 0.1) 0%, transparent 50%);
+            background-attachment: fixed;
+        }
+
+        h1, h2, h3, .brand-font {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #f8fafc 20%, #06b6d4 60%, #ec4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Header & Search */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .header-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+
+        .search-container {
+            position: relative;
+            flex: 1;
+            max-width: 400px;
+        }
+
+        .search-input {
+            width: 100%;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 9999px;
+            padding: 0.75rem 1.5rem;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            outline: none;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .search-input:focus {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.2);
+        }
+
+        .btn {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: var(--text-primary);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+
+        .btn:hover {
+            border-color: var(--glass-border-hover);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-violet), #5b21b6);
+            border: none;
+            color: white;
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(124, 58, 237, 0.6);
+            background: linear-gradient(135deg, #8b5cf6, var(--accent-violet));
+        }
+
+        /* Folders */
+        .folder-section {
+            margin-bottom: 3rem;
+        }
+
+        .folder-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .folder-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .folder-actions {
+            display: flex;
+            gap: 0.5rem;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+        }
+
+        .folder-header:hover .folder-actions {
+            opacity: 1;
+        }
+
+        .folder-actions button {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 0.875rem;
+        }
+        
+        .folder-actions button:hover {
+            color: var(--text-primary);
+        }
+        
+        .folder-actions button.delete:hover {
+            color: var(--accent-magenta);
+        }
+
+        /* Link Cards Grid */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .tilt-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            text-decoration: none;
+            color: var(--text-primary);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            transition: transform 0.1s ease, border-color 0.3s, box-shadow 0.3s;
+            position: relative;
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+
+        /* Internal tilt wrapper */
+        .tilt-card-content {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            width: 100%;
+            transform: translateZ(20px);
+            pointer-events: none;
+        }
+
+        .tilt-card:hover {
+            border-color: var(--glass-border-hover);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            z-index: 10;
+        }
+
+        .favicon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .favicon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .link-info {
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .link-name {
+            font-weight: 500;
+            font-size: 1rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .link-url {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-top: 0.1rem;
+        }
+
+        .delete-link {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--accent-magenta);
+            color: white;
+            border: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            z-index: 20;
+            box-shadow: 0 2px 10px rgba(236, 72, 153, 0.5);
+        }
+
+        .tilt-card:hover .delete-link {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        .delete-link:hover {
+            background: #be185d;
+        }
+
+        /* Modals */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 11, 16, 0.8);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .modal {
+            background: rgba(25, 28, 41, 0.9);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2rem;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal h2 {
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            padding: 0.75rem;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus {
+            border-color: var(--accent-violet);
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        [x-cloak] { display: none !important; }
+        
+        /* Utility */
+        .empty-state {
+            color: var(--text-secondary);
+            font-style: italic;
+            padding: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" x-data="dashboard" x-cloak>
+        
+        <!-- Header -->
+        <header>
+            <h1 class="header-title gradient-text">Dashboard</h1>
+            
+            <div class="search-container">
+                <input type="text" x-model="searchQuery" class="search-input" placeholder="Search across folders...">
+            </div>
+            
+            <button class="btn btn-primary" @click="showFolderModal = true">+ New Folder</button>
+        </header>
+
+        <!-- Folders -->
+        <template x-for="folder in filteredFolders" :key="folder.id">
+            <div class="folder-section">
+                <div class="folder-header">
+                    <h2 class="folder-title" x-text="folder.name"></h2>
+                    <div class="folder-actions">
+                        <button @click="openAddLink(folder.id)">+ Add Link</button>
+                        <button class="delete" @click="deleteFolder(folder.id)">Delete Folder</button>
+                    </div>
+                </div>
+
+                <div class="grid" x-init="$nextTick(() => { initTilt() })">
+                    <template x-for="link in folder.links" :key="link.id">
+                        <a :href="link.url" target="_blank" rel="noopener noreferrer" class="tilt-card" @mousemove="handleMouseMove" @mouseleave="handleMouseLeave">
+                            <button class="delete-link" @click.prevent="deleteLink(folder.id, link.id)" title="Delete Link">×</button>
+                            <div class="tilt-card-content">
+                                <div class="favicon">
+                                    <img :src="getFavicon(link.url)" :alt="link.name" @error="$el.style.display='none'">
+                                </div>
+                                <div class="link-info">
+                                    <div class="link-name" x-text="link.name"></div>
+                                    <div class="link-url" x-text="new URL(link.url).hostname"></div>
+                                </div>
+                            </div>
+                        </a>
+                    </template>
+                    
+                    <template x-if="folder.links.length === 0">
+                        <div class="empty-state">No links found in this folder.</div>
+                    </template>
+                </div>
+            </div>
+        </template>
+        
+        <template x-if="filteredFolders.length === 0">
+            <div class="empty-state" style="text-align: center; margin-top: 4rem;">
+                <h3>No folders or links match your search.</h3>
+            </div>
+        </template>
+
+        <!-- New Folder Modal -->
+        <div class="modal-overlay" x-show="showFolderModal" style="display: none;" @click.self="showFolderModal = false" x-transition.opacity>
+            <div class="modal" x-transition.scale.origin.bottom>
+                <h2>New Folder</h2>
+                <div class="form-group">
+                    <label>Folder Name</label>
+                    <input type="text" x-model="newFolderName" class="form-input" placeholder="e.g. Design Inspiration" @keydown.enter="addFolder" x-ref="folderInput">
+                </div>
+                <div class="modal-actions">
+                    <button class="btn" @click="showFolderModal = false">Cancel</button>
+                    <button class="btn btn-primary" @click="addFolder">Create Folder</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- New Link Modal -->
+        <div class="modal-overlay" x-show="showLinkModal" style="display: none;" @click.self="showLinkModal = false" x-transition.opacity>
+            <div class="modal" x-transition.scale.origin.bottom>
+                <h2>Add Link</h2>
+                <div class="form-group">
+                    <label>Site Name</label>
+                    <input type="text" x-model="newLinkName" class="form-input" placeholder="e.g. Dribbble" x-ref="linkNameInput">
+                </div>
+                <div class="form-group">
+                    <label>URL</label>
+                    <input type="url" x-model="newLinkUrl" class="form-input" placeholder="e.g. dribbble.com" @keydown.enter="addLink">
+                </div>
+                <div class="modal-actions">
+                    <button class="btn" @click="showLinkModal = false">Cancel</button>
+                    <button class="btn btn-primary" @click="addLink">Add Link</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('dashboard', () => ({
+                folders: [],
+                searchQuery: '',
+                
+                showFolderModal: false,
+                newFolderName: '',
+                
+                showLinkModal: false,
+                activeFolderId: null,
+                newLinkName: '',
+                newLinkUrl: '',
+
+                init() {
+                    const saved = localStorage.getItem('myDashboardData');
+                    if (saved) {
+                        try {
+                            this.folders = JSON.parse(saved);
+                        } catch(e) {
+                            this.folders = this.defaultFolders();
+                        }
+                    } else {
+                        this.folders = this.defaultFolders();
+                        this.save();
+                    }
+                    
+                    // Focus inputs when modals open
+                    this.$watch('showFolderModal', value => {
+                        if (value) this.$nextTick(() => this.$refs.folderInput.focus());
+                    });
+                    this.$watch('showLinkModal', value => {
+                        if (value) this.$nextTick(() => this.$refs.linkNameInput.focus());
+                    });
+                },
+
+                save() {
+                    localStorage.setItem('myDashboardData', JSON.stringify(this.folders));
+                },
+                
+                get filteredFolders() {
+                    if (!this.searchQuery.trim()) return this.folders;
+                    const q = this.searchQuery.toLowerCase().trim();
+                    return this.folders.map(f => {
+                        const matchedLinks = f.links.filter(l => l.name.toLowerCase().includes(q) || l.url.toLowerCase().includes(q));
+                        return { ...f, links: matchedLinks };
+                    }).filter(f => f.links.length > 0 || f.name.toLowerCase().includes(q));
+                },
+
+                addFolder() {
+                    if (!this.newFolderName.trim()) return;
+                    this.folders.push({
+                        id: 'f_' + Date.now(),
+                        name: this.newFolderName.trim(),
+                        links: []
+                    });
+                    this.save();
+                    this.newFolderName = '';
+                    this.showFolderModal = false;
+                },
+
+                deleteFolder(id) {
+                    if(confirm('Are you sure you want to delete this folder and all its links?')) {
+                        this.folders = this.folders.filter(f => f.id !== id);
+                        this.save();
+                    }
+                },
+
+                openAddLink(folderId) {
+                    this.activeFolderId = folderId;
+                    this.newLinkName = '';
+                    this.newLinkUrl = '';
+                    this.showLinkModal = true;
+                },
+
+                addLink() {
+                    if (!this.newLinkName.trim() || !this.newLinkUrl.trim()) return;
+                    const folder = this.folders.find(f => f.id === this.activeFolderId);
+                    if (folder) {
+                        let url = this.newLinkUrl.trim();
+                        if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                            url = 'https://' + url;
+                        }
+                        folder.links.push({
+                            id: 'l_' + Date.now(),
+                            name: this.newLinkName.trim(),
+                            url: url
+                        });
+                        this.save();
+                    }
+                    this.showLinkModal = false;
+                },
+
+                deleteLink(folderId, linkId) {
+                    const folder = this.folders.find(f => f.id === folderId);
+                    if (folder) {
+                        folder.links = folder.links.filter(l => l.id !== linkId);
+                        this.save();
+                    }
+                },
+
+                getFavicon(url) {
+                    try {
+                        let parsed = new URL(url);
+                        return `https://www.google.com/s2/favicons?domain=${parsed.hostname}&sz=64`;
+                    } catch (e) {
+                        return '';
+                    }
+                },
+
+                // 3D Tilt handling per element
+                handleMouseMove(e) {
+                    const card = e.currentTarget;
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    
+                    const rotateX = ((y - centerY) / centerY) * -15; 
+                    const rotateY = ((x - centerX) / centerX) * 15;
+                    
+                    card.style.transform = `perspective(1000px) scale3d(1.02, 1.02, 1.02) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+                },
+
+                handleMouseLeave(e) {
+                    const card = e.currentTarget;
+                    card.style.transform = `perspective(1000px) scale3d(1, 1, 1) rotateX(0deg) rotateY(0deg)`;
+                },
+
+                initTilt() {
+                    // Triggered on x-init for new elements, though we handle mouse events directly via Alpine now.
+                    // This function is kept for lifecycle completion.
+                },
+
+                defaultFolders() {
+                    return [
+                        {
+                            id: "f_1",
+                            name: "AI Tools",
+                            links: [
+                                { id: "l_1", name: "Claude", url: "https://claude.ai" },
+                                { id: "l_2", name: "ChatGPT", url: "https://chatgpt.com" },
+                                { id: "l_3", name: "Bard/Gemini", url: "https://gemini.google.com" },
+                                { id: "l_4", name: "Deepseek", url: "https://chat.deepseek.com" },
+                                { id: "l_5", name: "Stitch", url: "https://stitch.dev" }
+                            ]
+                        },
+                        {
+                            id: "f_2",
+                            name: "Dev/Hosting",
+                            links: [
+                                { id: "l_6", name: "GitHub", url: "https://github.com" },
+                                { id: "l_7", name: "Vercel", url: "https://vercel.com" },
+                                { id: "l_8", name: "Render", url: "https://render.com" },
+                                { id: "l_9", name: "Railway", url: "https://railway.app" },
+                                { id: "l_10", name: "Supabase", url: "https://supabase.com" },
+                                { id: "l_11", name: "Koyeb", url: "https://koyeb.com" },
+                                { id: "l_12", name: "Mongodb Atlas", url: "https://mongodb.com/atlas" }
+                            ]
+                        },
+                        {
+                            id: "f_3",
+                            name: "Design",
+                            links: [
+                                { id: "l_13", name: "Figma", url: "https://figma.com" },
+                                { id: "l_14", name: "v0.dev", url: "https://v0.dev" },
+                                { id: "l_15", name: "Canva", url: "https://canva.com" },
+                                { id: "l_16", name: "Excalidraw", url: "https://excalidraw.com" }
+                            ]
+                        },
+                        {
+                            id: "f_4",
+                            name: "Job Hunt",
+                            links: [
+                                { id: "l_17", name: "Rozee.pk", url: "https://rozee.pk" },
+                                { id: "l_18", name: "LinkedIn", url: "https://linkedin.com" },
+                                { id: "l_19", name: "Indeed", url: "https://indeed.com" }
+                            ]
+                        },
+                        {
+                            id: "f_5",
+                            name: "Learning/ML",
+                            links: [
+                                { id: "l_20", name: "Google Colab", url: "https://colab.research.google.com" },
+                                { id: "l_21", name: "Kaggle", url: "https://kaggle.com" },
+                                { id: "l_22", name: "Hugging Face", url: "https://huggingface.co" }
+                            ]
+                        },
+                        {
+                            id: "f_6",
+                            name: "Utility",
+                            links: [
+                                { id: "l_23", name: "Notion", url: "https://notion.so" },
+                                { id: "l_24", name: "Postman", url: "https://postman.com" },
+                                { id: "l_25", name: "Regex101", url: "https://regex101.com" },
+                                { id: "l_26", name: "CodeSandbox", url: "https://codesandbox.io" },
+                                { id: "l_27", name: "YT Music", url: "https://music.youtube.com" },
+                                { id: "l_28", name: "YouTube", url: "https://youtube.com" }
+                            ]
+                        }
+                    ];
+                }
+            }));
+        });
+    </script>
+</body>
+</html>
