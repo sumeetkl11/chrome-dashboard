@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    
+    <!-- Alpine.js (local copy for Chrome extension offline use) -->
+    <script defer src="./Dashboard_files/cdn.min.js.download"></script>
+    
+    <!-- Google Fonts (local copy) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+    <link href="./Dashboard_files/css2" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #0A0B10;
+            --glass-bg: rgba(18, 20, 32, 0.65);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-border-hover: rgba(255, 255, 255, 0.20);
+            --accent-violet: #7C3AED;
+            --accent-cyan: #06B6D4;
+            --accent-magenta: #EC4899;
+            --text-primary: #F8FAFC;
+            --text-secondary: #94A3B8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(124, 58, 237, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 85% 30%, rgba(6, 182, 212, 0.1) 0%, transparent 50%);
+            background-attachment: fixed;
+        }
+
+        h1, h2, h3, .brand-font {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #f8fafc 20%, #06b6d4 60%, #ec4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Header & Search */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .header-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+
+        .search-container {
+            position: relative;
+            flex: 1;
+            max-width: 400px;
+        }
+
+        .search-input {
+            width: 100%;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 9999px;
+            padding: 0.75rem 1.5rem;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            outline: none;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .search-input:focus {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.2);
+        }
+
+        /* Header right actions */
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        /* Sync status badge */
+        .sync-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.8rem;
+            padding: 0.4rem 0.85rem;
+            border-radius: 9999px;
+            border: 1px solid var(--glass-border);
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            color: var(--text-secondary);
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+        .sync-badge.syncing { border-color: var(--accent-cyan); color: var(--accent-cyan); }
+        .sync-badge.synced  { border-color: #22c55e; color: #22c55e; }
+        .sync-badge.error   { border-color: var(--accent-magenta); color: var(--accent-magenta); }
+
+        .sync-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+        .sync-badge.syncing .sync-dot {
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50%       { opacity: 0.3; }
+        }
+
+        .btn {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: var(--text-primary);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            white-space: nowrap;
+        }
+
+        .btn:hover {
+            border-color: var(--glass-border-hover);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-violet), #5b21b6);
+            border: none;
+            color: white;
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(124, 58, 237, 0.6);
+            background: linear-gradient(135deg, #8b5cf6, var(--accent-violet));
+        }
+
+        .btn-sync {
+            background: linear-gradient(135deg, #0e7490, var(--accent-cyan));
+            border: none;
+            color: white;
+            box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3);
+            font-size: 0.85rem;
+        }
+        .btn-sync:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(6, 182, 212, 0.5);
+        }
+        .btn-sync.connected {
+            background: linear-gradient(135deg, #166534, #22c55e);
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+        }
+
+        /* Folders */
+        .folder-section {
+            margin-bottom: 3rem;
+        }
+
+        .folder-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .folder-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .folder-actions {
+            display: flex;
+            gap: 0.5rem;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+        }
+
+        .folder-header:hover .folder-actions {
+            opacity: 1;
+        }
+
+        .folder-actions button {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 0.875rem;
+        }
+
+        .folder-actions button:hover { color: var(--text-primary); }
+        .folder-actions button.delete:hover { color: var(--accent-magenta); }
+
+        /* Link Cards Grid */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .tilt-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            text-decoration: none;
+            color: var(--text-primary);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            transition: transform 0.1s ease, border-color 0.3s, box-shadow 0.3s;
+            position: relative;
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+
+        .tilt-card-content {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            width: 100%;
+            transform: translateZ(20px);
+            pointer-events: none;
+        }
+
+        .tilt-card:hover {
+            border-color: var(--glass-border-hover);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            z-index: 10;
+        }
+
+        .favicon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .favicon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .link-info { flex: 1; overflow: hidden; }
+
+        .link-name {
+            font-weight: 500;
+            font-size: 1rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .link-url {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-top: 0.1rem;
+        }
+
+        .delete-link {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--accent-magenta);
+            color: white;
+            border: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            z-index: 20;
+            box-shadow: 0 2px 10px rgba(236, 72, 153, 0.5);
+        }
+
+        .tilt-card:hover .delete-link { opacity: 1; transform: scale(1); }
+        .delete-link:hover { background: #be185d; }
+
+        /* Modals */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(10, 11, 16, 0.8);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .modal {
+            background: rgba(25, 28, 41, 0.9);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2rem;
+            width: 90%;
+            max-width: 440px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal h2 { margin-bottom: 1.5rem; font-size: 1.5rem; }
+
+        .modal-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            margin-top: -1rem;
+            line-height: 1.5;
+        }
+        .modal-subtitle a { color: var(--accent-cyan); text-decoration: none; }
+        .modal-subtitle a:hover { text-decoration: underline; }
+
+        .form-group { margin-bottom: 1.25rem; }
+
+        .form-group label {
+            display: block;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            padding: 0.75rem;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .form-input:focus { border-color: var(--accent-violet); }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .modal-danger-zone {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--glass-border);
+        }
+        .modal-danger-zone p {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+        }
+        .btn-danger {
+            background: rgba(236, 72, 153, 0.15);
+            border: 1px solid rgba(236, 72, 153, 0.3);
+            color: var(--accent-magenta);
+            font-size: 0.8rem;
+            padding: 0.4rem 0.85rem;
+        }
+        .btn-danger:hover { background: rgba(236, 72, 153, 0.25); border-color: var(--accent-magenta); }
+
+        [x-cloak] { display: none !important; }
+
+        .empty-state {
+            color: var(--text-secondary);
+            font-style: italic;
+            padding: 1rem 0;
+        }
+
+        /* Laptop responsive */
+        @media (max-width: 768px) {
+            .header-title { font-size: 1.75rem; }
+            .container { padding: 1rem; }
+            .grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 0.85rem; }
+            .header-right { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container" x-data="dashboard" x-cloak>
+
+        <!-- Header -->
+        <header>
+            <h1 class="header-title gradient-text">Dashboard</h1>
+
+            <div class="search-container">
+                <input type="text" x-model="searchQuery" class="search-input" placeholder="Search across folders...">
+            </div>
+
+            <div class="header-right">
+                <!-- Sync status indicator -->
+                <div class="sync-badge" :class="syncStatus" x-show="syncStatus !== 'idle'">
+                    <span class="sync-dot"></span>
+                    <span x-text="syncStatus === 'syncing' ? 'Syncing...' : syncStatus === 'synced' ? 'Synced' : 'Sync failed'"></span>
+                </div>
+
+                <!-- Sync button -->
+                <button class="btn btn-sync" :class="{ connected: githubToken }" @click="githubToken ? showSyncModal = true : showTokenModal = true">
+                    <span x-text="githubToken ? '🔗 Sync On' : '☁️ Setup Sync'"></span>
+                </button>
+
+                <button class="btn btn-primary" @click="showFolderModal = true">+ New Folder</button>
+            </div>
+        </header>
+
+        <!-- Folders -->
+        <template x-for="folder in filteredFolders" :key="folder.id">
+            <div class="folder-section">
+                <div class="folder-header">
+                    <h2 class="folder-title" x-text="folder.name"></h2>
+                    <div class="folder-actions">
+                        <button @click="openAddLink(folder.id)">+ Add Link</button>
+                        <button class="delete" @click="deleteFolder(folder.id)">Delete Folder</button>
+                    </div>
+                </div>
+
+                <div class="grid">
+                    <template x-for="link in folder.links" :key="link.id">
+                        <a :href="link.url" target="_blank" rel="noopener noreferrer" class="tilt-card" @mousemove="handleMouseMove" @mouseleave="handleMouseLeave">
+                            <button class="delete-link" @click.prevent="deleteLink(folder.id, link.id)" title="Delete Link">×</button>
+                            <div class="tilt-card-content">
+                                <div class="favicon">
+                                    <img :src="getFavicon(link.url)" :alt="link.name" @error="$el.style.display='none'">
+                                </div>
+                                <div class="link-info">
+                                    <div class="link-name" x-text="link.name"></div>
+                                    <div class="link-url" x-text="getHostname(link.url)"></div>
+                                </div>
+                            </div>
+                        </a>
+                    </template>
+                    <template x-if="folder.links.length === 0">
+                        <div class="empty-state">No links yet. Click + Add Link.</div>
+                    </template>
+                </div>
+            </div>
+        </template>
+
+        <template x-if="filteredFolders.length === 0">
+            <div class="empty-state" style="text-align:center;margin-top:4rem;">
+                <h3>No folders or links match your search.</h3>
+            </div>
+        </template>
+
+        <!-- ── GitHub Token Setup Modal ── -->
+        <div class="modal-overlay" x-show="showTokenModal" style="display:none;" @click.self="showTokenModal = false" x-transition.opacity>
+            <div class="modal" x-transition.scale.origin.bottom>
+                <h2>☁️ Setup Cloud Sync</h2>
+                <p class="modal-subtitle">
+                    Your links will sync automatically across all devices.<br><br>
+                    1. Go to <a href="https://github.com/settings/tokens" target="_blank">github.com/settings/tokens</a><br>
+                    2. Click <strong>Generate new token (classic)</strong><br>
+                    3. Check only the <strong>gist</strong> scope<br>
+                    4. Copy &amp; paste it below
+                </p>
+                <div class="form-group">
+                    <label>GitHub Personal Access Token</label>
+                    <input type="password" x-model="tokenInput" class="form-input" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" @keydown.enter="saveToken" x-ref="tokenInput">
+                </div>
+                <div class="modal-actions">
+                    <button class="btn" @click="showTokenModal = false">Cancel</button>
+                    <button class="btn btn-primary" @click="saveToken">Connect &amp; Sync</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Sync Management Modal ── -->
+        <div class="modal-overlay" x-show="showSyncModal" style="display:none;" @click.self="showSyncModal = false" x-transition.opacity>
+            <div class="modal" x-transition.scale.origin.bottom>
+                <h2>🔗 Sync Settings</h2>
+                <p class="modal-subtitle">
+                    Your dashboard is connected to GitHub Gist and syncing automatically.
+                </p>
+                <div class="form-group">
+                    <label>Gist ID</label>
+                    <input type="text" :value="gistId || 'Will be created on first sync'" class="form-input" readonly style="opacity:0.6;font-size:0.8rem;">
+                </div>
+                <div class="modal-actions">
+                    <button class="btn" @click="showSyncModal = false">Close</button>
+                    <button class="btn btn-primary" @click="pullFromGist(); showSyncModal = false">🔄 Pull Latest Now</button>
+                </div>
+                <div class="modal-danger-zone">
+                    <p>Disconnect sync (keeps local data, stops cloud updates)</p>
+                    <button class="btn btn-danger" @click="clearToken(); showSyncModal = false">Disconnect</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── New Folder Modal ── -->
+        <div class="modal-overlay" x-show="showFolderModal" style="display:none;" @click.self="showFolderModal = false" x-transition.opacity>
+            <div class="modal" x-transition.scale.origin.bottom>
+                <h2>New Folder</h2>
+                <div class="form-group">
+                    <label>Folder Name</label>
+                    <input type="text" x-model="newFolderName" class="form-input" placeholder="e.g. Design Inspiration" @keydown.enter="addFolder" x-ref="folderInput">
+                </div>
+                <div class="modal-actions">
+                    <button class="btn" @click="showFolderModal = false">Cancel</button>
+                    <button class="btn btn-primary" @click="addFolder">Create Folder</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── New Link Modal ── -->
+        <div class="modal-overlay" x-show="showLinkModal" style="display:none;" @click.self="showLinkModal = false" x-transition.opacity>
+            <div class="modal" x-transition.scale.origin.bottom>
+                <h2>Add Link</h2>
+                <div class="form-group">
+                    <label>Site Name</label>
+                    <input type="text" x-model="newLinkName" class="form-input" placeholder="e.g. Dribbble" x-ref="linkNameInput">
+                </div>
+                <div class="form-group">
+                    <label>URL</label>
+                    <input type="url" x-model="newLinkUrl" class="form-input" placeholder="e.g. dribbble.com" @keydown.enter="addLink">
+                </div>
+                <div class="modal-actions">
+                    <button class="btn" @click="showLinkModal = false">Cancel</button>
+                    <button class="btn btn-primary" @click="addLink">Add Link</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('dashboard', () => ({
+                folders: [],
+                searchQuery: '',
+
+                // modals
+                showFolderModal: false,
+                newFolderName: '',
+                showLinkModal: false,
+                activeFolderId: null,
+                newLinkName: '',
+                newLinkUrl: '',
+                showTokenModal: false,
+                tokenInput: '',
+                showSyncModal: false,
+
+                // sync
+                githubToken: localStorage.getItem('dashboardGithubToken') || null,
+                gistId: localStorage.getItem('dashboardGistId') || null,
+                syncStatus: 'idle',
+
+                // ── Init ──────────────────────────────────────────
+                async init() {
+                    const saved = localStorage.getItem('myDashboardData');
+                    if (saved) {
+                        try { this.folders = JSON.parse(saved); }
+                        catch(e) { this.folders = this.defaultFolders(); }
+                    } else {
+                        this.folders = this.defaultFolders();
+                        localStorage.setItem('myDashboardData', JSON.stringify(this.folders));
+                    }
+
+                    if (this.githubToken) {
+                        await this.pullFromGist();
+                    }
+
+                    this.$watch('showFolderModal', v => { if (v) this.$nextTick(() => this.$refs.folderInput.focus()); });
+                    this.$watch('showLinkModal',   v => { if (v) this.$nextTick(() => this.$refs.linkNameInput.focus()); });
+                    this.$watch('showTokenModal',  v => { if (v) this.$nextTick(() => this.$refs.tokenInput.focus()); });
+                },
+
+                // ── Persist ───────────────────────────────────────
+                async save() {
+                    localStorage.setItem('myDashboardData', JSON.stringify(this.folders));
+                    if (this.githubToken) {
+                        await this.pushToGist();
+                    }
+                },
+
+                // ── GitHub Gist Sync ──────────────────────────────
+                async pushToGist() {
+                    this.syncStatus = 'syncing';
+                    const content = JSON.stringify(this.folders, null, 2);
+                    const headers = {
+                        'Authorization': `token ${this.githubToken}`,
+                        'Content-Type': 'application/json'
+                    };
+                    try {
+                        if (this.gistId) {
+                            const res = await fetch(`https://api.github.com/gists/${this.gistId}`, {
+                                method: 'PATCH', headers,
+                                body: JSON.stringify({ files: { 'dashboard-links.json': { content } } })
+                            });
+                            if (!res.ok) throw new Error('patch failed');
+                        } else {
+                            const res = await fetch('https://api.github.com/gists', {
+                                method: 'POST', headers,
+                                body: JSON.stringify({
+                                    description: 'My Dashboard Links — auto-synced',
+                                    public: false,
+                                    files: { 'dashboard-links.json': { content } }
+                                })
+                            });
+                            if (!res.ok) throw new Error('create failed');
+                            const data = await res.json();
+                            this.gistId = data.id;
+                            localStorage.setItem('dashboardGistId', this.gistId);
+                        }
+                        this.syncStatus = 'synced';
+                        setTimeout(() => { if (this.syncStatus === 'synced') this.syncStatus = 'idle'; }, 3000);
+                    } catch(e) {
+                        this.syncStatus = 'error';
+                        setTimeout(() => { this.syncStatus = 'idle'; }, 4000);
+                    }
+                },
+
+                async pullFromGist() {
+                    if (!this.githubToken) return;
+                    this.syncStatus = 'syncing';
+                    const headers = { 'Authorization': `token ${this.githubToken}` };
+                    try {
+                        let gistData;
+                        if (this.gistId) {
+                            const res = await fetch(`https://api.github.com/gists/${this.gistId}`, { headers });
+                            if (!res.ok) throw new Error('fetch failed');
+                            gistData = await res.json();
+                        } else {
+                            const res = await fetch('https://api.github.com/gists?per_page=100', { headers });
+                            if (!res.ok) throw new Error('list failed');
+                            const list = await res.json();
+                            const found = list.find(g => g.files['dashboard-links.json']);
+                            if (!found) {
+                                await this.pushToGist();
+                                return;
+                            }
+                            this.gistId = found.id;
+                            localStorage.setItem('dashboardGistId', this.gistId);
+                            const r2 = await fetch(`https://api.github.com/gists/${this.gistId}`, { headers });
+                            if (!r2.ok) throw new Error('fetch gist failed');
+                            gistData = await r2.json();
+                        }
+
+                        const content = gistData.files['dashboard-links.json'].content;
+                        this.folders = JSON.parse(content);
+                        localStorage.setItem('myDashboardData', content);
+                        this.syncStatus = 'synced';
+                        setTimeout(() => { if (this.syncStatus === 'synced') this.syncStatus = 'idle'; }, 3000);
+                    } catch(e) {
+                        this.syncStatus = 'error';
+                        setTimeout(() => { this.syncStatus = 'idle'; }, 4000);
+                    }
+                },
+
+                saveToken() {
+                    const t = this.tokenInput.trim();
+                    if (!t) return;
+                    this.githubToken = t;
+                    localStorage.setItem('dashboardGithubToken', t);
+                    this.tokenInput = '';
+                    this.showTokenModal = false;
+                    this.pullFromGist();
+                },
+
+                clearToken() {
+                    this.githubToken = null;
+                    this.gistId = null;
+                    localStorage.removeItem('dashboardGithubToken');
+                    localStorage.removeItem('dashboardGistId');
+                    this.syncStatus = 'idle';
+                },
+
+                // ── Filtered view ─────────────────────────────────
+                get filteredFolders() {
+                    if (!this.searchQuery.trim()) return this.folders;
+                    const q = this.searchQuery.toLowerCase().trim();
+                    return this.folders.map(f => {
+                        const matchedLinks = f.links.filter(l =>
+                            l.name.toLowerCase().includes(q) || l.url.toLowerCase().includes(q)
+                        );
+                        return { ...f, links: matchedLinks };
+                    }).filter(f => f.links.length > 0 || f.name.toLowerCase().includes(q));
+                },
+
+                // ── Folder CRUD ───────────────────────────────────
+                addFolder() {
+                    if (!this.newFolderName.trim()) return;
+                    this.folders.push({ id: 'f_' + Date.now(), name: this.newFolderName.trim(), links: [] });
+                    this.save();
+                    this.newFolderName = '';
+                    this.showFolderModal = false;
+                },
+
+                deleteFolder(id) {
+                    if (confirm('Delete this folder and all its links?')) {
+                        this.folders = this.folders.filter(f => f.id !== id);
+                        this.save();
+                    }
+                },
+
+                // ── Link CRUD ─────────────────────────────────────
+                openAddLink(folderId) {
+                    this.activeFolderId = folderId;
+                    this.newLinkName = '';
+                    this.newLinkUrl = '';
+                    this.showLinkModal = true;
+                },
+
+                addLink() {
+                    if (!this.newLinkName.trim() || !this.newLinkUrl.trim()) return;
+                    const folder = this.folders.find(f => f.id === this.activeFolderId);
+                    if (folder) {
+                        let url = this.newLinkUrl.trim();
+                        if (!url.startsWith('http://') && !url.startsWith('https://')) url = 'https://' + url;
+                        folder.links.push({ id: 'l_' + Date.now(), name: this.newLinkName.trim(), url });
+                        this.save();
+                    }
+                    this.showLinkModal = false;
+                },
+
+                deleteLink(folderId, linkId) {
+                    const folder = this.folders.find(f => f.id === folderId);
+                    if (folder) {
+                        folder.links = folder.links.filter(l => l.id !== linkId);
+                        this.save();
+                    }
+                },
+
+                // ── Helpers ───────────────────────────────────────
+                getFavicon(url) {
+                    try {
+                        const { hostname } = new URL(url);
+                        return `https://www.google.com/s2/favicons?domain=${hostname}&sz=64`;
+                    } catch { return ''; }
+                },
+
+                getHostname(url) {
+                    try { return new URL(url).hostname; }
+                    catch { return url; }
+                },
+
+                // ── 3D Tilt ───────────────────────────────────────
+                handleMouseMove(e) {
+                    const card = e.currentTarget;
+                    const rect = card.getBoundingClientRect();
+                    const rotateX = (((e.clientY - rect.top)  / rect.height) - 0.5) * -30;
+                    const rotateY = (((e.clientX - rect.left) / rect.width)  - 0.5) * 30;
+                    card.style.transform = `perspective(1000px) scale3d(1.02,1.02,1.02) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+                },
+
+                handleMouseLeave(e) {
+                    e.currentTarget.style.transform = 'perspective(1000px) scale3d(1,1,1) rotateX(0deg) rotateY(0deg)';
+                },
+
+                // ── Default folders (all 9) ───────────────────────
+                defaultFolders() {
+                    return [
+                        {
+                            id: "f_1", name: "AI Tools",
+                            links: [
+                                { id: "l_1",  name: "Claude",       url: "https://claude.ai" },
+                                { id: "l_2",  name: "ChatGPT",      url: "https://chatgpt.com" },
+                                { id: "l_3",  name: "Bard/Gemini",  url: "https://gemini.google.com" },
+                                { id: "l_4",  name: "Deepseek",     url: "https://chat.deepseek.com" },
+                                { id: "l_5",  name: "Stitch",       url: "https://stitch.withgoogle.com" }
+                            ]
+                        },
+                        {
+                            id: "f_2", name: "Dev/Hosting",
+                            links: [
+                                { id: "l_6",  name: "GitHub",        url: "https://github.com" },
+                                { id: "l_7",  name: "Vercel",        url: "https://vercel.com" },
+                                { id: "l_8",  name: "Render",        url: "https://render.com" },
+                                { id: "l_9",  name: "Railway",       url: "https://railway.app" },
+                                { id: "l_10", name: "Supabase",      url: "https://supabase.com" },
+                                { id: "l_11", name: "Koyeb",         url: "https://koyeb.com" },
+                                { id: "l_12", name: "Mongodb Atlas", url: "https://mongodb.com/atlas" }
+                            ]
+                        },
+                        {
+                            id: "f_3", name: "Design",
+                            links: [
+                                { id: "l_13", name: "Figma",       url: "https://figma.com" },
+                                { id: "l_14", name: "v0.dev",      url: "https://v0.dev" },
+                                { id: "l_15", name: "Canva",       url: "https://canva.com" },
+                                { id: "l_16", name: "Excalidraw",  url: "https://excalidraw.com" }
+                            ]
+                        },
+                        {
+                            id: "f_4", name: "Job Hunt",
+                            links: [
+                                { id: "l_17", name: "Rozee.pk",  url: "https://rozee.pk" },
+                                { id: "l_18", name: "LinkedIn",  url: "https://linkedin.com" },
+                                { id: "l_19", name: "Indeed",    url: "https://indeed.com" }
+                            ]
+                        },
+                        {
+                            id: "f_5", name: "Learning/ML",
+                            links: [
+                                { id: "l_20", name: "Google Colab", url: "https://colab.research.google.com" },
+                                { id: "l_21", name: "Kaggle",       url: "https://kaggle.com" },
+                                { id: "l_22", name: "Hugging Face", url: "https://huggingface.co" }
+                            ]
+                        },
+                        {
+                            id: "f_6", name: "Utility",
+                            links: [
+                                { id: "l_23", name: "Notion",      url: "https://notion.so" },
+                                { id: "l_24", name: "Regex101",    url: "https://regex101.com" },
+                                { id: "l_25", name: "CodeSandbox", url: "https://codesandbox.io" },
+                                { id: "l_26", name: "YT Music",    url: "https://music.youtube.com" },
+                                { id: "l_27", name: "YouTube",     url: "https://youtube.com" },
+                                { id: "l_28", name: "Outlook",     url: "https://outlook.cloud.microsoft/mail/" }
+                            ]
+                        },
+                        {
+                            id: "f_7", name: "imp",
+                            links: [
+                                { id: "l_29", name: "meta ads roadmap", url: "https://gemini.google.com/spark/chat/cdae37a8dac668ef" },
+                                { id: "l_30", name: "Meta business",    url: "https://business.facebook.com/" }
+                            ]
+                        },
+                        {
+                            id: "f_8", name: "3d",
+                            links: [
+                                { id: "l_31", name: "whisk", url: "https://labs.google/fx/tools/whisk" },
+                                { id: "l_32", name: "flow",  url: "https://labs.google/fx/tools/flow" }
+                            ]
+                        },
+                        {
+                            id: "f_9", name: "google course",
+                            links: [
+                                { id: "l_33", name: "Google AI Fun...", url: "https://www.coursera.org/learn/google-ai-fundamentals/lecture/lkxJu/ai-fundamentals" },
+                                { id: "l_34", name: "Python-crash",     url: "https://www.coursera.org/learn/python-crash-course/home/module/1" },
+                                { id: "l_35", name: "e-commerce a...",  url: "https://www.coursera.org/learn/foundations-of-digital-marketing-and-e-commerce/home/module/1" },
+                                { id: "l_36", name: "AI Essentials",    url: "https://www.coursera.org/learn/google-introduction-to-ai/home/module/1" }
+                            ]
+                        }
+                    ];
+                }
+            }));
+        });
+    </script>
+</body>
+</html>
