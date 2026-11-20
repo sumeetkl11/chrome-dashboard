@@ -1,0 +1,29 @@
+# Token files - DO NOT COMMIT
+*.atxe
+tokens.txt
+*token*.txt
+
+# API Keys and Secrets
+*.key
+*.pem
+.env
+.env.local
+.env.*.local
+
+# Node modules
+node_modules/
+
+# Build outputs
+dist/
+build/
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo

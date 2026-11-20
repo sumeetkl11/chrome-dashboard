@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0A0B10">
+    <meta name="description" content="Your intelligent link organizer with AI-powered features">
+    <title>Advanced Dashboard</title>
+
+    <!-- Preconnect to external resources -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="./styles/variables.css">
+    <link rel="stylesheet" href="./styles/base.css">
+    <link rel="stylesheet" href="./styles/themes/light.css">
+    <link rel="stylesheet" href="./styles/components/header.css">
+    <link rel="stylesheet" href="./styles/components/card.css">
+    <link rel="stylesheet" href="./styles/components/modal.css">
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="./manifest.json">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="./assets/icons/favicon.png">
+</head>
+<body>
+    <!-- Skip to main content -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <!-- Screen reader announcer -->
+    <div id="sr-announcer" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
+
+    <div class="container" x-data="dashboard" x-cloak>
+
+        <!-- Header -->
+        <header role="banner">
+            <h1 class="header-title gradient-text" id="page-title">Dashboard</h1>
+
+            <div class="search-container" role="search">
+                <label for="search-input" class="sr-only">Search links</label>
+                <input
+                    type="text"
+                    id="search-input"
+                    x-model="searchQuery"
+                    class="search-input"
+                    placeholder="Search across folders..."
+                    aria-label="Search across all folders and links"
+                    aria-describedby="search-hint"
+                >
+                <span id="search-hint" class="sr-only">
+                    Start typing to filter links by name or URL
+                </span>
+            </div>
+
+            <div class="header-right">
+                <!-- Sync status indicator -->
+                <div class="sync-badge" :class="syncStatus" x-show="syncStatus !== 'idle'">
+                    <span class="sync-dot"></span>
+                    <span x-text="syncStatus === 'syncing' ? 'Syncing...' : syncStatus === 'synced' ? 'Synced' : 'Sync failed'"></span>
+                </div>
+
+                <!-- Theme toggle -->
+                <button
+                    class="btn btn-icon"
+                    @click="toggleTheme()"
+                    aria-label="Toggle theme"
+                    title="Toggle light/dark theme"
+                >
+                    <span x-show="$root.getAttribute('data-theme') === 'dark'">☀️</span>
+                    <span x-show="$root.getAttribute('data-theme') === 'light'">🌙</span>
+                </button>
+
+                <!-- Sync setup / connected button -->
+                <button
+                    class="btn btn-sync"
+                    :class="{ connected: githubToken }"
+                    @click="githubToken ? showSyncModal = true : showTokenModal = true"
+                    aria-label="GitHub sync settings"
+                >
+                    <span x-text="githubToken ? '🔗 Sync On' : '☁️ Setup Sync'"></span>
+                </button>
+
+                <button
+                    class="btn btn-primary"
+                    @click="showFolderModal = true"
+                    aria-label="Create new folder"
+                >
+                    + New Folder
+                </button>
+            </div>
+        </header>
+
+        <!-- Main content -->
+        <main role="main" aria-labelledby="page-title" id="main-content">
+            <!-- Loading state -->
+            <div x-show="isLoading" class="loading-container">
+                <div class="spinner"></div>
+                <p>Loading your dashboard...</p>
+            </div>
+
+            <!-- Folders -->
+            <template x-for="folder in filteredFolders" :key="folder.id">
+                <section class="folder-section" :data-folder-id="folder.id">
+                    <div class="folder-header">
+                        <h2 class="folder-title" x-text="folder.name"></h2>
+                        <div class="folder-actions">
+                            <button
+                                @click="openAddLink(folder.id)"
+                                aria-label="`Add link to ${folder.name}`"
+                            >
+                                + Add Link
+                            </button>
+                            <button
+                                class="delete"
+                                @click="deleteFolder(folder.id)"
+                                aria-label="`Delete ${folder.name} folder`"
+                            >
+                                Delete Folder
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="grid">
+                        <template x-for="link in folder.links" :key="link.id">
+                            <a
+                                :href="link.url"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="tilt-card"
+                                @mousemove="handleMouseMove"
+                                @mouseleave="handleMouseLeave"
+                                @click="handleLinkClick(link.id)"
+                                :aria-label="`${link.name} - ${getHostname(link.url)}`"
+                                :data-link-id="link.id"
+                                :data-folder-id="folder.id"
+                                tabindex="0"
+                            >
+                                <button
+                                    class="delete-link"
+                                    @click.prevent="deleteLink(folder.id, link.id)"
+                                    :aria-label="`Delete ${link.name}`"
+                                    title="Delete Link"
+                                    tabindex="-1"
+                                >
+                                    ×
+                                </button>
+                                <div class="tilt-card-content">
+                                    <div class="favicon">
+                                        <img
+                                            :src="getFavicon(link.url)"
+                                            :alt="`${link.name} icon`"
+                                            loading="lazy"
+                                            @error="$el.style.display='none'"
+                                        >
+                                    </div>
+                                    <div class="link-info">
+                                        <div class="link-name" x-text="link.name"></div>
+                                        <div class="link-url" x-text="getHostname(link.url)"></div>
+                                    </div>
+                                </div>
+                            </a>
+                        </template>
+                        <template x-if="folder.links.length === 0">
+                            <div class="empty-state">No links yet. Click + Add Link.</div>
+                        </template>
+                    </div>
+                </section>
+            </template>
+
+            <!-- Empty state -->
+            <template x-if="filteredFolders.length === 0">
+                <div class="empty-state" style="text-align:center;margin-top:4rem;">
+                    <h3>No folders or links match your search.</h3>
+                </div>
+            </template>
+        </main>
+
+        <!-- ── GitHub Token Setup Modal ── -->
+        <div
+            class="modal-overlay"
+            x-show="showTokenModal"
+            style="display:none;"
+            @click.self="showTokenModal = false"
+            x-transition.opacity
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="token-modal-title"
+        >
+            <div class="modal" x-transition.scale.origin.bottom>
+                <h2 id="token-modal-title">☁️ Setup Cloud Sync</h2>
+                <p class="modal-subtitle">
+                    Your links will sync automatically across all devices.<br><br>
+                    1. Go to <a href="https://github.com/settings/tokens" target="_blank" rel="noopener">github.com/settings/tokens</a><br>
+                    2. Click <strong>Generate new token (classic)</strong><br>
+                    3. Check only the <strong>gist</strong> scope<br>
+                    4. Copy &amp; paste it below
+                </p>
+                <div class="form-group">
+                    <label for="token-input">GitHub Personal Access Token</label>
+                    <input
+                        type="password"
+                        id="token-input"
+                        x-model="tokenInput"
+                        class="form-input"
+                        placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
+                        @keydown.enter="saveToken"
+                        x-ref="tokenInput"
+                        aria-required="true"
+                    >
+                </div>
+                <div class="modal-actions">
+                    <button class="btn" @click="showTokenModal = false">Cancel</button>
+                    <button class="btn btn-primary" @click="saveToken">Connect &amp; Sync</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Sync Management Modal ── -->
+        <div
+            class="modal-overlay"
+            x-show="showSyncModal"
+            style="display:none;"
+            @click.self="showSyncModal = false"
+            x-transition.opacity
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="sync-modal-title"
+        >
+            <div class="modal" x-transition.scale.origin.bottom>
+                <h2 id="sync-modal-title">🔗 Sync Settings</h2>
+                <p class="modal-subtitle">
+                    Your dashboard is connected to GitHub Gist and syncing automatically.
+                </p>
+                <div class="form-group">
+                    <label>Gist ID</label>
+                    <input
+                        type="text"
+                        :value="gistId || 'Will be created on first sync'"
+                        class="form-input"
+                        readonly
+                        style="opacity:0.6;font-size:0.8rem;"
+                        aria-readonly="true"
+                    >
+                </div>
+                <div class="modal-actions">
+                    <button class="btn" @click="showSyncModal = false">Close</button>
+                    <button class="btn btn-primary" @click="pullFromGist(); showSyncModal = false">🔄 Pull Latest Now</button>
+                </div>
+                <div class="modal-danger-zone">
+                    <p>Disconnect sync (keeps local data, stops cloud updates)</p>
+                    <button class="btn btn-danger" @click="clearToken(); showSyncModal = false">Disconnect</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── New Folder Modal ── -->
+        <div
+            class="modal-overlay"
+            x-show="showFolderModal"
+            style="display:none;"
+            @click.self="showFolderModal = false"
+            x-transition.opacity
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="folder-modal-title"
+        >
+            <div class="modal" x-transition.scale.origin.bottom>
+                <h2 id="folder-modal-title">New Folder</h2>
+                <div class="form-group">
+                    <label for="folder-name-input">Folder Name</label>
+                    <input
+                        type="text"
+                        id="folder-name-input"
+                        x-model="newFolderName"
+                        class="form-input"
+                        placeholder="e.g. Design Inspiration"
+                        @keydown.enter="addFolder"
+                        x-ref="folderInput"
+                        maxlength="50"
+                        aria-required="true"
+                    >
+                </div>
+                <div class="modal-actions">
+                    <button class="btn" @click="showFolderModal = false">Cancel</button>
+                    <button class="btn btn-primary" @click="addFolder">Create Folder</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── New Link Modal ── -->
+        <div
+            class="modal-overlay"
+            x-show="showLinkModal"
+            style="display:none;"
+            @click.self="showLinkModal = false"
+            x-transition.opacity
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="link-modal-title"
+        >
+            <div class="modal" x-transition.scale.origin.bottom>
+                <h2 id="link-modal-title">Add Link</h2>
+                <div class="form-group">
+                    <label for="link-name-input">Site Name</label>
+                    <input
+                        type="text"
+                        id="link-name-input"
+                        x-model="newLinkName"
+                        class="form-input"
+                        placeholder="e.g. Dribbble"
+                        x-ref="linkNameInput"
+                        maxlength="100"
+                        aria-required="true"
+                    >
+                </div>
+                <div class="form-group">
+                    <label for="link-url-input">URL</label>
+                    <input
+                        type="url"
+                        id="link-url-input"
+                        x-model="newLinkUrl"
+                        class="form-input"
+                        placeholder="e.g. dribbble.com"
+                        @keydown.enter="addLink"
+                        aria-required="true"
+                    >
+                </div>
+                <div class="modal-actions">
+                    <button class="btn" @click="showLinkModal = false">Cancel</button>
+                    <button class="btn btn-primary" @click="addLink">Add Link</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Scripts (type="module" for ES6 imports) -->
+    <script type="module" src="./scripts/main.js"></script>
+</body>
+</html>

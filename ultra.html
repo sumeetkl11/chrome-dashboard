@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultra Dashboard</title>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --primary: #A78BFA;
+            --secondary: #60A5FA;
+            --tertiary: #F472B6;
+            --success: #34D399;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0e1a;
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* ANIMATED MESH GRADIENT BACKGROUND */
+        .bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        /* PARTICLES CANVAS */
+        #particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* SPOTLIGHT EFFECT FOLLOWS CURSOR */
+        .spotlight {
+            position: fixed;
+            width: 1000px;
+            height: 1000px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(167, 139, 250, 0.25) 0%, rgba(96, 165, 250, 0.15) 30%, transparent 70%);
+            pointer-events: none;
+            z-index: 2;
+            transform: translate(-50%, -50%);
+            transition: opacity 0.3s;
+            animation: spotlightPulse 4s ease-in-out infinite;
+        }
+
+        @keyframes spotlightPulse {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; }
+        }
+
+        .container {
+            position: relative;
+            z-index: 3;
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 2.5rem;
+        }
+
+        /* ULTRA HEADER */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4rem;
+            padding: 2.5rem 3rem;
+            background: rgba(15, 20, 35, 0.6);
+            border: 1px solid rgba(167, 139, 250, 0.2);
+            border-radius: 32px;
+            backdrop-filter: blur(40px);
+            box-shadow:
+                0 8px 32px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05),
+                0 0 60px rgba(167, 139, 250, 0.1);
+            animation: headerGlow 8s ease-in-out infinite;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        @keyframes headerGlow {
+            0%, 100% { box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 0 60px rgba(167, 139, 250, 0.1); }
+            50% { box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 0 80px rgba(167, 139, 250, 0.3); }
+        }
+
+        .header-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 4.5rem;
+            font-weight: 900;
+            letter-spacing: -0.05em;
+            background: linear-gradient(135deg, #ffffff 0%, #A78BFA 25%, #60A5FA 50%, #F472B6 75%, #FFD700 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-size: 400% 400%;
+            animation: gradientFlow 4s ease infinite, titlePulse 3s ease-in-out infinite;
+            text-shadow: 0 0 120px rgba(167, 139, 250, 0.8);
+            position: relative;
+            filter: drop-shadow(0 0 40px rgba(167, 139, 250, 0.6));
+        }
+
+        @keyframes titlePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+        }
+
+        @keyframes gradientFlow {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        /* MAGNETIC SEARCH */
+        .search-container {
+            position: relative;
+            flex: 1;
+            max-width: 600px;
+            min-width: 300px;
+        }
+
+        .search-input {
+            width: 100%;
+            background: rgba(20, 25, 45, 0.8);
+            border: 2px solid rgba(167, 139, 250, 0.3);
+            border-radius: 50px;
+            padding: 1.25rem 2rem;
+            color: #ffffff;
+            font-size: 1.05rem;
+            font-weight: 500;
+            outline: none;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(20px);
+        }
+
+        .search-input:focus {
+            border-color: var(--primary);
+            background: rgba(20, 25, 45, 0.95);
+            box-shadow:
+                0 0 0 6px rgba(167, 139, 250, 0.15),
+                0 20px 50px rgba(167, 139, 250, 0.4),
+                inset 0 0 30px rgba(167, 139, 250, 0.1);
+            transform: translateY(-3px);
+        }
+
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        /* PREMIUM BUTTONS */
+        .header-right {
+            display: flex;
+            gap: 1.25rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border-radius: 20px;
+            border: none;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn:active::before {
+            width: 400px;
+            height: 400px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #A78BFA 0%, #8B5CF6 100%);
+            color: white;
+            box-shadow:
+                0 8px 32px rgba(167, 139, 250, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-5px) scale(1.03);
+            box-shadow:
+                0 20px 60px rgba(167, 139, 250, 0.7),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-sync {
+            background: linear-gradient(135deg, #60A5FA 0%, #3B82F6 100%);
+            color: white;
+            box-shadow:
+                0 8px 32px rgba(96, 165, 250, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-sync:hover {
+            transform: translateY(-5px) scale(1.03);
+            box-shadow:
+                0 20px 60px rgba(96, 165, 250, 0.7),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-sync.connected {
+            background: linear-gradient(135deg, #34D399 0%, #10B981 100%);
+            box-shadow:
+                0 8px 32px rgba(52, 211, 153, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        /* SYNC BADGE */
+        .sync-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.85rem 1.5rem;
+            background: rgba(20, 25, 45, 0.8);
+            border: 2px solid rgba(96, 165, 250, 0.3);
+            border-radius: 50px;
+            backdrop-filter: blur(20px);
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .sync-badge.syncing {
+            border-color: var(--secondary);
+            box-shadow: 0 0 30px rgba(96, 165, 250, 0.5);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .sync-badge.synced {
+            border-color: var(--success);
+            box-shadow: 0 0 30px rgba(52, 211, 153, 0.5);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.9; }
+        }
+
+        .sync-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .sync-badge.syncing .sync-dot {
+            animation: dotPulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes dotPulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.5; }
+        }
+
+        /* FOLDER SECTIONS */
+        .folder-section {
+            margin-bottom: 4rem;
+            animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) backwards;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(60px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .folder-section:nth-child(1) { animation-delay: 0.1s; }
+        .folder-section:nth-child(2) { animation-delay: 0.15s; }
+        .folder-section:nth-child(3) { animation-delay: 0.2s; }
+        .folder-section:nth-child(4) { animation-delay: 0.25s; }
+        .folder-section:nth-child(5) { animation-delay: 0.3s; }
+
+        .folder-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2rem 2.5rem;
+            margin-bottom: 2rem;
+            background: rgba(15, 20, 35, 0.5);
+            border: 1px solid rgba(167, 139, 250, 0.15);
+            border-radius: 28px;
+            backdrop-filter: blur(30px);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .folder-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(167, 139, 250, 0.1), transparent);
+            transition: left 0.6s;
+        }
+
+        .folder-header:hover::before {
+            left: 100%;
+        }
+
+        .folder-header:hover {
+            border-color: rgba(167, 139, 250, 0.4);
+            box-shadow:
+                0 10px 40px rgba(0, 0, 0, 0.3),
+                0 0 60px rgba(167, 139, 250, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            transform: translateX(12px);
+        }
+
+        .folder-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.25rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #ffffff, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-size: 200% 200%;
+            animation: gradientFlow 5s ease infinite;
+            position: relative;
+            filter: drop-shadow(0 4px 12px rgba(167, 139, 250, 0.5));
+        }
+
+        .folder-actions {
+            display: flex;
+            gap: 1rem;
+            opacity: 0.6;
+            transition: opacity 0.3s;
+        }
+
+        .folder-header:hover .folder-actions {
+            opacity: 1;
+        }
+
+        .folder-actions button {
+            background: rgba(167, 139, 250, 0.1);
+            border: 1px solid rgba(167, 139, 250, 0.2);
+            color: #fff;
+            padding: 0.75rem 1.5rem;
+            border-radius: 16px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .folder-actions button:hover {
+            background: rgba(167, 139, 250, 0.2);
+            border-color: var(--primary);
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 10px 30px rgba(167, 139, 250, 0.4);
+        }
+
+        .folder-actions button.delete:hover {
+            background: rgba(244, 114, 182, 0.2);
+            border-color: var(--tertiary);
+            box-shadow: 0 10px 30px rgba(244, 114, 182, 0.4);
+        }
+
+        /* ULTRA CARDS GRID */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .tilt-card {
+            background: rgba(15, 20, 35, 0.6);
+            border: 2px solid rgba(167, 139, 250, 0.2);
+            border-radius: 20px;
+            padding: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            text-decoration: none;
+            color: #fff;
+            backdrop-filter: blur(30px);
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow:
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+
+        .tilt-card::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary), var(--tertiary));
+            border-radius: 28px;
+            opacity: 0;
+            transition: opacity 0.5s;
+            z-index: -1;
+            animation: rotateBorder 4s linear infinite;
+        }
+
+        @keyframes rotateBorder {
+            from { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.1); }
+            to { transform: rotate(360deg) scale(1); }
+        }
+
+        .tilt-card:hover::before {
+            opacity: 1;
+        }
+
+        .tilt-card::after {
+            content: '';
+            position: absolute;
+            inset: 2px;
+            background: rgba(15, 20, 35, 0.95);
+            border-radius: 26px;
+            z-index: -1;
+        }
+
+        .tilt-card:hover {
+            transform: translateY(-16px) scale(1.05);
+            box-shadow:
+                0 32px 80px rgba(0, 0, 0, 0.6),
+                0 0 100px rgba(167, 139, 250, 0.8),
+                0 0 150px rgba(96, 165, 250, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+            filter: brightness(1.2);
+        }
+
+        .tilt-card-content {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+        }
+
+        .favicon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(167, 139, 250, 0.2), rgba(96, 165, 250, 0.2));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            flex-shrink: 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .favicon::before {
+            content: '';
+            position: absolute;
+            inset: -50%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            from { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            to { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        .tilt-card:hover .favicon {
+            transform: rotate(360deg) scale(1.25);
+            border-color: var(--primary);
+            box-shadow:
+                0 0 60px rgba(167, 139, 250, 1),
+                0 0 100px rgba(96, 165, 250, 0.6),
+                inset 0 0 30px rgba(167, 139, 250, 0.4);
+            animation: iconBounce 0.6s ease;
+        }
+
+        @keyframes iconBounce {
+            0%, 100% { transform: rotate(360deg) scale(1.25); }
+            50% { transform: rotate(360deg) scale(1.35); }
+        }
+
+        .favicon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            position: relative;
+            z-index: 1;
+        }
+
+        .link-info {
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .link-name {
+            font-weight: 700;
+            font-size: 0.95rem;
+            margin-bottom: 0.4rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: #ffffff;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .link-url {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.5);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-weight: 500;
+        }
+
+        .delete-link {
+            position: absolute;
+            top: -12px;
+            right: -12px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #F472B6, #EC4899);
+            border: 3px solid rgba(15, 20, 35, 0.9);
+            color: white;
+            font-size: 24px;
+            font-weight: 900;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transform: scale(0) rotate(-180deg);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 10;
+            box-shadow: 0 8px 24px rgba(236, 72, 153, 0.6);
+        }
+
+        .tilt-card:hover .delete-link {
+            opacity: 1;
+            transform: scale(1) rotate(0deg);
+        }
+
+        .delete-link:hover {
+            transform: scale(1.2) rotate(90deg);
+            box-shadow: 0 12px 40px rgba(236, 72, 153, 0.8);
+        }
+
+        /* MODALS */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(16px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal {
+            background: rgba(15, 20, 35, 0.95);
+            border: 2px solid rgba(167, 139, 250, 0.3);
+            border-radius: 32px;
+            padding: 3rem;
+            width: 90%;
+            max-width: 520px;
+            box-shadow:
+                0 40px 100px rgba(0, 0, 0, 0.8),
+                0 0 100px rgba(167, 139, 250, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(40px);
+            animation: modalSlide 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes modalSlide {
+            from {
+                opacity: 0;
+                transform: translateY(60px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .modal h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #fff, var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .modal-subtitle {
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 2rem;
+            margin-top: -1rem;
+            line-height: 1.7;
+            font-size: 0.95rem;
+        }
+
+        .modal-subtitle a {
+            color: var(--secondary);
+            text-decoration: none;
+            font-weight: 700;
+            transition: color 0.3s;
+        }
+
+        .modal-subtitle a:hover {
+            color: var(--primary);
+        }
+
+        .form-group {
+            margin-bottom: 1.75rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.95rem;
+        }
+
+        .form-input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            border: 2px solid rgba(167, 139, 250, 0.2);
+            border-radius: 16px;
+            padding: 1.25rem 1.5rem;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 500;
+            outline: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .form-input:focus {
+            border-color: var(--primary);
+            background: rgba(0, 0, 0, 0.5);
+            box-shadow:
+                0 0 0 5px rgba(167, 139, 250, 0.15),
+                0 10px 40px rgba(167, 139, 250, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1.25rem;
+            margin-top: 2.5rem;
+        }
+
+        .modal-danger-zone {
+            margin-top: 2.5rem;
+            padding-top: 2.5rem;
+            border-top: 2px solid rgba(167, 139, 250, 0.15);
+        }
+
+        .modal-danger-zone p {
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 1.25rem;
+            font-size: 0.9rem;
+        }
+
+        .btn-danger {
+            background: rgba(244, 114, 182, 0.2);
+            border: 2px solid rgba(244, 114, 182, 0.4);
+            color: var(--tertiary);
+            font-weight: 700;
+        }
+
+        .btn-danger:hover {
+            background: rgba(244, 114, 182, 0.3);
+            border-color: var(--tertiary);
+            box-shadow: 0 10px 40px rgba(244, 114, 182, 0.5);
+        }
+
+        [x-cloak] { display: none !important; }
+
+        .empty-state {
+            padding: 3rem;
+            text-align: center;
+            background: rgba(167, 139, 250, 0.05);
+            border: 2px dashed rgba(167, 139, 250, 0.2);
+            border-radius: 24px;
+            color: rgba(255, 255, 255, 0.5);
+            font-style: italic;
+            font-size: 1.05rem;
+        }
+
+        /* SCROLLBAR */
+        ::-webkit-scrollbar {
+            width: 14px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 20, 35, 0.5);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, var(--primary), var(--secondary));
+            border-radius: 10px;
+            border: 3px solid rgba(15, 20, 35, 0.5);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #8B5CF6, #3B82F6);
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .header-title { font-size: 2.5rem; }
+            .container { padding: 1.5rem; }
+            header { padding: 2rem; }
+            .grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background Canvas -->
+    <canvas class="bg-canvas" id="bgCanvas"></canvas>
+
+    <!-- Particles Canvas -->
+    <canvas id="particles"></canvas>
+
+    <!-- Spotlight Cursor Effect -->
+    <div class="spotlight" id="spotlight"></div>
+
+    <div class="container" x-data="dashboard" x-cloak>
+        <header>
+            <h1 class="header-title">Dashboard</h1>
+
+            <div class="search-container">
+                <input type="text" x-model="searchQuery" class="search-input" placeholder="Search across folders...">
+            </div>
+
+            <div class="header-right">
+                <div class="sync-badge" :class="syncStatus" x-show="syncStatus !== 'idle'">
+                    <span class="sync-dot"></span>
+                    <span x-text="syncStatus === 'syncing' ? 'Syncing...' : syncStatus === 'synced' ? 'Synced' : 'Sync failed'"></span>
+                </div>
+
+                <button class="btn btn-sync" :class="{ connected: githubToken }" @click="githubToken ? showSyncModal = true : showTokenModal = true">
+                    <span x-text="githubToken ? '🔗 Sync On' : '☁️ Setup Sync'"></span>
+                </button>
+
+                <button class="btn btn-primary" @click="showFolderModal = true">+ New Folder</button>
+            </div>
+        </header>
+
+        <template x-for="folder in filteredFolders" :key="folder.id">
+            <div class="folder-section">
+                <div class="folder-header">
+                    <h2 class="folder-title" x-text="folder.name"></h2>
+                    <div class="folder-actions">
+                        <button @click="openAddLink(folder.id)">+ Add Link</button>
+                        <button class="delete" @click="deleteFolder(folder.id)">Delete Folder</button>
+                    </div>
+                </div>
+
+                <div class="grid">
+                    <template x-for="link in folder.links" :key="link.id">
+                        <a :href="link.url" target="_blank" rel="noopener noreferrer" class="tilt-card" @mousemove="handleMouseMove" @mouseleave="handleMouseLeave">
+                            <button class="delete-link" @click.prevent="deleteLink(folder.id, link.id)" title="Delete Link">×</button>
+                            <div class="tilt-card-content">
+                                <div class="favicon">
+                                    <img :src="getFavicon(link.url)" :alt="link.name" @error="$el.style.display='none'">
+                                </div>
+                                <div class="link-info">
+                                    <div class="link-name" x-text="link.name"></div>
+                                    <div class="link-url" x-text="getHostname(link.url)"></div>
+                                </div>
+                            </div>
+                        </a>
+                    </template>
+                    <template x-if="folder.links.length === 0">
+                        <div class="empty-state">No links yet. Click + Add Link.</div>
+                    </template>
+                </div>
+            </div>
+        </template>
+
+        <template x-if="filteredFolders.length === 0">
+            <div class="empty-state" style="margin-top:4rem;">
+                <h3>No folders or links match your search.</h3>
+            </div>
+        </template>
+
+        <!-- Modals (same as before) -->
+        <div class="modal-overlay" x-show="showTokenModal" style="display:none;" @click.self="showTokenModal = false" x-transition.opacity>
+            <div class="modal" x-transition.scale.origin.bottom>
+                <h2>☁️ Setup Cloud Sync</h2>
+                <p class="modal-subtitle">
+                    Your links will sync automatically across all devices.<br><br>
+                    1. Go to <a href="https://github.com/settings/tokens" target="_blank">github.com/settings/tokens</a><br>
+                    2. Click <strong>Generate new token (classic)</strong><br>
+                    3. Check only the <strong>gist</strong> scope<br>
+                    4. Copy &amp; paste it below
+                </p>
+                <div class="form-group">
+                    <label>GitHub Personal Access Token</label>
+                    <input type="password" x-model="tokenInput" class="form-input" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" @keydown.enter="saveToken" x-ref="tokenInput">
+                </div>
+                <div class="modal-actions">
+                    <button class="btn" @click="showTokenModal = false">Cancel</button>
+                    <button class="btn btn-primary" @click="saveToken">Connect &amp; Sync</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-overlay" x-show="showSyncModal" style="display:none;" @click.self="showSyncModal = false" x-transition.opacity>
+            <div class="modal" x-transition.scale.origin.bottom>
+                <h2>🔗 Sync Settings</h2>
+                <p class="modal-subtitle">Your dashboard is connected to GitHub Gist and syncing automatically.</p>
+                <div class="form-group">
+                    <label>Gist ID</label>
+                    <input type="text" :value="gistId || 'Will be created on first sync'" class="form-input" readonly style="opacity:0.6;">
+                </div>
+                <div class="modal-actions">
+                    <button class="btn" @click="showSyncModal = false">Close</button>
+                    <button class="btn btn-primary" @click="pullFromGist(); showSyncModal = false">🔄 Pull Latest Now</button>
+                </div>
+                <div class="modal-danger-zone">
+                    <p>Disconnect sync (keeps local data, stops cloud updates)</p>
+                    <button class="btn btn-danger" @click="clearToken(); showSyncModal = false">Disconnect</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-overlay" x-show="showFolderModal" style="display:none;" @click.self="showFolderModal = false" x-transition.opacity>
+            <div class="modal" x-transition.scale.origin.bottom>
+                <h2>New Folder</h2>
+                <div class="form-group">
+                    <label>Folder Name</label>
+                    <input type="text" x-model="newFolderName" class="form-input" placeholder="e.g. Design Inspiration" @keydown.enter="addFolder" x-ref="folderInput">
+                </div>
+                <div class="modal-actions">
+                    <button class="btn" @click="showFolderModal = false">Cancel</button>
+                    <button class="btn btn-primary" @click="addFolder">Create Folder</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-overlay" x-show="showLinkModal" style="display:none;" @click.self="showLinkModal = false" x-transition.opacity>
+            <div class="modal" x-transition.scale.origin.bottom>
+                <h2>Add Link</h2>
+                <div class="form-group">
+                    <label>Site Name</label>
+                    <input type="text" x-model="newLinkName" class="form-input" placeholder="e.g. Dribbble" x-ref="linkNameInput">
+                </div>
+                <div class="form-group">
+                    <label>URL</label>
+                    <input type="url" x-model="newLinkUrl" class="form-input" placeholder="e.g. dribbble.com" @keydown.enter="addLink">
+                </div>
+                <div class="modal-actions">
+                    <button class="btn" @click="showLinkModal = false">Cancel</button>
+                    <button class="btn btn-primary" @click="addLink">Add Link</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ANIMATED MESH GRADIENT BACKGROUND
+        const bgCanvas = document.getElementById('bgCanvas');
+        const bgCtx = bgCanvas.getContext('2d');
+        bgCanvas.width = window.innerWidth;
+        bgCanvas.height = window.innerHeight;
+
+        const gradientBlobs = [
+            { x: 0.2, y: 0.3, vx: 0.0005, vy: 0.0003, color: 'rgba(167, 139, 250, 0.15)' },
+            { x: 0.8, y: 0.2, vx: -0.0004, vy: 0.0005, color: 'rgba(96, 165, 250, 0.15)' },
+            { x: 0.5, y: 0.7, vx: 0.0003, vy: -0.0004, color: 'rgba(244, 114, 182, 0.12)' },
+            { x: 0.3, y: 0.8, vx: -0.0003, vy: -0.0003, color: 'rgba(52, 211, 153, 0.1)' }
+        ];
+
+        function animateMeshGradient() {
+            bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+
+            gradientBlobs.forEach(blob => {
+                blob.x += blob.vx;
+                blob.y += blob.vy;
+
+                if (blob.x < 0 || blob.x > 1) blob.vx *= -1;
+                if (blob.y < 0 || blob.y > 1) blob.vy *= -1;
+
+                const gradient = bgCtx.createRadialGradient(
+                    blob.x * bgCanvas.width, blob.y * bgCanvas.height, 0,
+                    blob.x * bgCanvas.width, blob.y * bgCanvas.height, bgCanvas.width * 0.5
+                );
+                gradient.addColorStop(0, blob.color);
+                gradient.addColorStop(1, 'transparent');
+
+                bgCtx.fillStyle = gradient;
+                bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
+            });
+
+            requestAnimationFrame(animateMeshGradient);
+        }
+        animateMeshGradient();
+
+        // PARTICLES SYSTEM
+        const particlesCanvas = document.getElementById('particles');
+        const pCtx = particlesCanvas.getContext('2d');
+        particlesCanvas.width = window.innerWidth;
+        particlesCanvas.height = window.innerHeight;
+
+        const particles = [];
+        for (let i = 0; i < 100; i++) {
+            particles.push({
+                x: Math.random() * particlesCanvas.width,
+                y: Math.random() * particlesCanvas.height,
+                vx: (Math.random() - 0.5) * 0.5,
+                vy: (Math.random() - 0.5) * 0.5,
+                size: Math.random() * 2 + 1,
+                opacity: Math.random() * 0.5
+            });
+        }
+
+        function animateParticles() {
+            pCtx.clearRect(0, 0, particlesCanvas.width, particlesCanvas.height);
+
+            particles.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+
+                if (p.x < 0 || p.x > particlesCanvas.width) p.vx *= -1;
+                if (p.y < 0 || p.y > particlesCanvas.height) p.vy *= -1;
+
+                pCtx.beginPath();
+                pCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                pCtx.fillStyle = `rgba(167, 139, 250, ${p.opacity})`;
+                pCtx.fill();
+            });
+
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+
+        // SPOTLIGHT CURSOR EFFECT
+        const spotlight = document.getElementById('spotlight');
+        document.addEventListener('mousemove', (e) => {
+            spotlight.style.left = e.clientX + 'px';
+            spotlight.style.top = e.clientY + 'px';
+        });
+
+        // RESIZE HANDLERS
+        window.addEventListener('resize', () => {
+            bgCanvas.width = window.innerWidth;
+            bgCanvas.height = window.innerHeight;
+            particlesCanvas.width = window.innerWidth;
+            particlesCanvas.height = window.innerHeight;
+        });
+
+        // ALPINE DATA (same as before)
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('dashboard', () => ({
+                folders: [],
+                searchQuery: '',
+                showFolderModal: false,
+                newFolderName: '',
+                showLinkModal: false,
+                activeFolderId: null,
+                newLinkName: '',
+                newLinkUrl: '',
+                showTokenModal: false,
+                tokenInput: '',
+                showSyncModal: false,
+                githubToken: localStorage.getItem('dashboardGithubToken') || null,
+                gistId: localStorage.getItem('dashboardGistId') || null,
+                syncStatus: 'idle',
+
+                async init() {
+                    const saved = localStorage.getItem('myDashboardData');
+                    if (saved) {
+                        try { this.folders = JSON.parse(saved); }
+                        catch(e) { this.folders = this.defaultFolders(); }
+                    } else {
+                        this.folders = this.defaultFolders();
+                        localStorage.setItem('myDashboardData', JSON.stringify(this.folders));
+                    }
+
+                    if (this.githubToken) await this.pullFromGist();
+
+                    this.$watch('showFolderModal', v => { if (v) this.$nextTick(() => this.$refs.folderInput?.focus()); });
+                    this.$watch('showLinkModal', v => { if (v) this.$nextTick(() => this.$refs.linkNameInput?.focus()); });
+                    this.$watch('showTokenModal', v => { if (v) this.$nextTick(() => this.$refs.tokenInput?.focus()); });
+                },
+
+                async save() {
+                    localStorage.setItem('myDashboardData', JSON.stringify(this.folders));
+                    if (this.githubToken) await this.pushToGist();
+                },
+
+                async pushToGist() {
+                    this.syncStatus = 'syncing';
+                    const content = JSON.stringify(this.folders, null, 2);
+                    const headers = { 'Authorization': `token ${this.githubToken}`, 'Content-Type': 'application/json' };
+                    try {
+                        if (this.gistId) {
+                            const res = await fetch(`https://api.github.com/gists/${this.gistId}`, {
+                                method: 'PATCH', headers,
+                                body: JSON.stringify({ files: { 'dashboard-links.json': { content } } })
+                            });
+                            if (!res.ok) throw new Error('patch failed');
+                        } else {
+                            const res = await fetch('https://api.github.com/gists', {
+                                method: 'POST', headers,
+                                body: JSON.stringify({
+                                    description: 'My Dashboard Links — auto-synced',
+                                    public: false,
+                                    files: { 'dashboard-links.json': { content } }
+                                })
+                            });
+                            if (!res.ok) throw new Error('create failed');
+                            const data = await res.json();
+                            this.gistId = data.id;
+                            localStorage.setItem('dashboardGistId', this.gistId);
+                        }
+                        this.syncStatus = 'synced';
+                        setTimeout(() => { if (this.syncStatus === 'synced') this.syncStatus = 'idle'; }, 3000);
+                    } catch(e) {
+                        this.syncStatus = 'error';
+                        setTimeout(() => { this.syncStatus = 'idle'; }, 4000);
+                    }
+                },
+
+                async pullFromGist() {
+                    if (!this.githubToken) return;
+                    this.syncStatus = 'syncing';
+                    const headers = { 'Authorization': `token ${this.githubToken}` };
+                    try {
+                        let gistData;
+                        if (this.gistId) {
+                            const res = await fetch(`https://api.github.com/gists/${this.gistId}`, { headers });
+                            if (!res.ok) throw new Error('fetch failed');
+                            gistData = await res.json();
+                        } else {
+                            const res = await fetch('https://api.github.com/gists?per_page=100', { headers });
+                            if (!res.ok) throw new Error('list failed');
+                            const list = await res.json();
+                            const found = list.find(g => g.files['dashboard-links.json']);
+                            if (!found) { await this.pushToGist(); return; }
+                            this.gistId = found.id;
+                            localStorage.setItem('dashboardGistId', this.gistId);
+                            const r2 = await fetch(`https://api.github.com/gists/${this.gistId}`, { headers });
+                            if (!r2.ok) throw new Error('fetch gist failed');
+                            gistData = await r2.json();
+                        }
+
+                        const content = gistData.files['dashboard-links.json'].content;
+                        const parsed = JSON.parse(content);
+                        this.folders = parsed;
+                        localStorage.setItem('myDashboardData', content);
+                        this.syncStatus = 'synced';
+                        setTimeout(() => { if (this.syncStatus === 'synced') this.syncStatus = 'idle'; }, 3000);
+                    } catch(e) {
+                        this.syncStatus = 'error';
+                        setTimeout(() => { this.syncStatus = 'idle'; }, 4000);
+                    }
+                },
+
+                saveToken() {
+                    const t = this.tokenInput.trim();
+                    if (!t) return;
+                    this.githubToken = t;
+                    localStorage.setItem('dashboardGithubToken', t);
+                    this.tokenInput = '';
+                    this.showTokenModal = false;
+                    this.pullFromGist();
+                },
+
+                clearToken() {
+                    this.githubToken = null;
+                    this.gistId = null;
+                    localStorage.removeItem('dashboardGithubToken');
+                    localStorage.removeItem('dashboardGistId');
+                    this.syncStatus = 'idle';
+                },
+
+                get filteredFolders() {
+                    if (!this.searchQuery.trim()) return this.folders;
+                    const q = this.searchQuery.toLowerCase().trim();
+                    return this.folders.map(f => {
+                        const matchedLinks = f.links.filter(l =>
+                            l.name.toLowerCase().includes(q) || l.url.toLowerCase().includes(q)
+                        );
+                        return { ...f, links: matchedLinks };
+                    }).filter(f => f.links.length > 0 || f.name.toLowerCase().includes(q));
+                },
+
+                addFolder() {
+                    if (!this.newFolderName.trim()) return;
+                    this.folders.push({ id: 'f_' + Date.now(), name: this.newFolderName.trim(), links: [] });
+                    this.save();
+                    this.newFolderName = '';
+                    this.showFolderModal = false;
+                },
+
+                deleteFolder(id) {
+                    if (confirm('Delete this folder and all its links?')) {
+                        this.folders = this.folders.filter(f => f.id !== id);
+                        this.save();
+                    }
+                },
+
+                openAddLink(folderId) {
+                    this.activeFolderId = folderId;
+                    this.newLinkName = '';
+                    this.newLinkUrl = '';
+                    this.showLinkModal = true;
+                },
+
+                addLink() {
+                    if (!this.newLinkName.trim() || !this.newLinkUrl.trim()) return;
+                    const folder = this.folders.find(f => f.id === this.activeFolderId);
+                    if (folder) {
+                        let url = this.newLinkUrl.trim();
+                        if (!url.startsWith('http://') && !url.startsWith('https://')) url = 'https://' + url;
+                        folder.links.push({ id: 'l_' + Date.now(), name: this.newLinkName.trim(), url });
+                        this.save();
+                    }
+                    this.showLinkModal = false;
+                },
+
+                deleteLink(folderId, linkId) {
+                    const folder = this.folders.find(f => f.id === folderId);
+                    if (folder) {
+                        folder.links = folder.links.filter(l => l.id !== linkId);
+                        this.save();
+                    }
+                },
+
+                getFavicon(url) {
+                    try {
+                        const { hostname } = new URL(url);
+                        return `https://www.google.com/s2/favicons?domain=${hostname}&sz=64`;
+                    } catch { return ''; }
+                },
+
+                getHostname(url) {
+                    try { return new URL(url).hostname; }
+                    catch { return url; }
+                },
+
+                handleMouseMove(e) {
+                    const card = e.currentTarget;
+                    const rect = card.getBoundingClientRect();
+                    const rotateX = (((e.clientY - rect.top) / rect.height) - 0.5) * -10;
+                    const rotateY = (((e.clientX - rect.left) / rect.width) - 0.5) * 10;
+                    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-12px) scale(1.03)`;
+                },
+
+                handleMouseLeave(e) {
+                    e.currentTarget.style.transform = '';
+                },
+
+                defaultFolders() {
+                    return [
+                        { id: "f_1", name: "AI Tools", links: [
+                            { id: "l_1", name: "Claude", url: "https://claude.ai" },
+                            { id: "l_2", name: "ChatGPT", url: "https://chatgpt.com" },
+                            { id: "l_3", name: "Bard/Gemini", url: "https://gemini.google.com" },
+                            { id: "l_4", name: "Deepseek", url: "https://chat.deepseek.com" },
+                            { id: "l_5", name: "Stitch", url: "https://stitch.withgoogle.com" }
+                        ]},
+                        { id: "f_2", name: "Dev/Hosting", links: [
+                            { id: "l_6", name: "GitHub", url: "https://github.com" },
+                            { id: "l_7", name: "Vercel", url: "https://vercel.com" },
+                            { id: "l_8", name: "Render", url: "https://render.com" },
+                            { id: "l_9", name: "Railway", url: "https://railway.app" },
+                            { id: "l_10", name: "Supabase", url: "https://supabase.com" },
+                            { id: "l_11", name: "Koyeb", url: "https://koyeb.com" },
+                            { id: "l_12", name: "MongoDB Atlas", url: "https://mongodb.com/atlas" }
+                        ]},
+                        { id: "f_3", name: "Design", links: [
+                            { id: "l_13", name: "Figma", url: "https://figma.com" },
+                            { id: "l_14", name: "v0.dev", url: "https://v0.dev" },
+                            { id: "l_15", name: "Canva", url: "https://canva.com" },
+                            { id: "l_16", name: "Excalidraw", url: "https://excalidraw.com" }
+                        ]},
+                        { id: "f_4", name: "Job Hunt", links: [
+                            { id: "l_17", name: "Rozee.pk", url: "https://rozee.pk" },
+                            { id: "l_18", name: "LinkedIn", url: "https://linkedin.com" },
+                            { id: "l_19", name: "Indeed", url: "https://indeed.com" }
+                        ]},
+                        { id: "f_5", name: "Learning/ML", links: [
+                            { id: "l_20", name: "Google Colab", url: "https://colab.research.google.com" },
+                            { id: "l_21", name: "Kaggle", url: "https://kaggle.com" },
+                            { id: "l_22", name: "Hugging Face", url: "https://huggingface.co" }
+                        ]},
+                        { id: "f_6", name: "Utility", links: [
+                            { id: "l_23", name: "Notion", url: "https://notion.so" },
+                            { id: "l_24", name: "Regex101", url: "https://regex101.com" },
+                            { id: "l_25", name: "CodeSandbox", url: "https://codesandbox.io" },
+                            { id: "l_26", name: "YT Music", url: "https://music.youtube.com" },
+                            { id: "l_27", name: "YouTube", url: "https://youtube.com" },
+                            { id: "l_28", name: "Outlook", url: "https://outlook.cloud.microsoft/mail/" }
+                        ]},
+                        { id: "f_7", name: "imp", links: [
+                            { id: "l_29", name: "meta ads roadmap", url: "https://gemini.google.com/spark/chat/cdae37a8dac668ef" },
+                            { id: "l_30", name: "Meta business", url: "https://business.facebook.com/" }
+                        ]},
+                        { id: "f_8", name: "3d", links: [
+                            { id: "l_31", name: "whisk", url: "https://labs.google/fx/tools/whisk" },
+                            { id: "l_32", name: "flow", url: "https://labs.google/fx/tools/flow" }
+                        ]},
+                        { id: "f_9", name: "google course", links: [
+                            { id: "l_33", name: "Google AI Fun...", url: "https://www.coursera.org/learn/google-ai-fundamentals/lecture/lkxJu/ai-fundamentals" },
+                            { id: "l_34", name: "Python-crash", url: "https://www.coursera.org/learn/python-crash-course/home/module/1" },
+                            { id: "l_35", name: "e-commerce a...", url: "https://www.coursera.org/learn/foundations-of-digital-marketing-and-e-commerce/home/module/1" },
+                            { id: "l_36", name: "AI Essentials", url: "https://www.coursera.org/learn/google-introduction-to-ai/home/module/1" }
+                        ]}
+                    ];
+                }
+            }));
+        });
+    </script>
+</body>
+</html>

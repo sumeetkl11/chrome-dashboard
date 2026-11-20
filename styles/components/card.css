@@ -1,0 +1,187 @@
+/* Link Cards */
+.tilt-card {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-md);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  text-decoration: none;
+  color: var(--text-primary);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--duration-fast) var(--ease-out),
+              border-color var(--duration-normal) var(--ease-out),
+              box-shadow var(--duration-normal) var(--ease-out);
+  position: relative;
+  transform-style: preserve-3d;
+  cursor: pointer;
+}
+
+.tilt-card-content {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  width: 100%;
+  transform: translateZ(20px);
+  pointer-events: none;
+}
+
+.tilt-card:hover {
+  border-color: var(--glass-border-hover);
+  box-shadow: var(--shadow-lg);
+  z-index: var(--z-base);
+}
+
+.tilt-card:focus-visible {
+  outline: 2px solid var(--accent-cyan);
+  outline-offset: 4px;
+}
+
+/* Favicon */
+.favicon {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.favicon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Link info */
+.link-info {
+  flex: 1;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.link-name {
+  font-weight: 500;
+  font-size: 1rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.4;
+}
+
+.link-url {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 0.1rem;
+  line-height: 1.3;
+}
+
+/* Delete link button */
+.delete-link {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: var(--accent-magenta);
+  color: white;
+  border: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  opacity: 0;
+  transform: scale(0.8);
+  transition: all var(--duration-fast) var(--ease-out);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1;
+  z-index: 20;
+  box-shadow: 0 2px 10px rgba(236, 72, 153, 0.5);
+  pointer-events: auto;
+}
+
+.tilt-card:hover .delete-link,
+.tilt-card:focus-within .delete-link {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.delete-link:hover {
+  background: #be185d;
+  transform: scale(1.1);
+}
+
+.delete-link:focus-visible {
+  outline: 2px solid white;
+  outline-offset: 2px;
+}
+
+/* Drag and drop states */
+.tilt-card.dragging {
+  opacity: 0.5;
+  cursor: grabbing;
+}
+
+.drag-placeholder {
+  pointer-events: none;
+  opacity: 0.3;
+}
+
+.folder-section.drag-over {
+  background: rgba(124, 58, 237, 0.05);
+  border-radius: var(--radius-md);
+  outline: 2px dashed var(--accent-violet);
+  outline-offset: 8px;
+}
+
+@keyframes drag-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+.drag-over {
+  animation: drag-pulse 1s ease-in-out infinite;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .tilt-card {
+    padding: 0.75rem;
+    gap: 0.75rem;
+  }
+
+  .favicon {
+    width: 28px;
+    height: 28px;
+  }
+
+  .link-name {
+    font-size: 0.9rem;
+  }
+
+  .link-url {
+    font-size: 0.7rem;
+  }
+}
+
+@media (hover: none) {
+  /* On touch devices, always show delete button */
+  .delete-link {
+    opacity: 0.7;
+  }
+
+  .tilt-card:active .delete-link {
+    opacity: 1;
+  }
+}

@@ -1,0 +1,41 @@
+[data-theme="light"] {
+  --bg-color: #FFFFFF;
+  --glass-bg: rgba(248, 250, 252, 0.8);
+  --glass-border: rgba(0, 0, 0, 0.08);
+  --glass-border-hover: rgba(0, 0, 0, 0.16);
+  --accent-violet: #7C3AED;
+  --accent-cyan: #0891B2;
+  --accent-magenta: #DB2777;
+  --text-primary: #0F172A;
+  --text-secondary: #64748B;
+  --success: #16a34a;
+  --error: #dc2626;
+  --warning: #d97706;
+
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.12);
+  --shadow-xl: 0 25px 50px rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="light"] body {
+  background-image:
+    radial-gradient(circle at 15% 50%, rgba(124, 58, 237, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 85% 30%, rgba(8, 145, 178, 0.05) 0%, transparent 50%);
+}
+
+[data-theme="light"] .tilt-card {
+  box-shadow: var(--shadow-sm);
+}
+
+[data-theme="light"] .tilt-card:hover {
+  box-shadow: var(--shadow-lg);
+}
+
+[data-theme="light"] .modal {
+  background: rgba(255, 255, 255, 0.95);
+}
+
+[data-theme="light"] .command-palette {
+  background: rgba(255, 255, 255, 0.98);
+}
